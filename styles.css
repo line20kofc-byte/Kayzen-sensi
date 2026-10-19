@@ -14,3 +14,8 @@
 .source-btn:hover{background:#492666}
 .profile-card:has(.source-btn){border-color:#7948aa;box-shadow:0 0 20px #7436ba12}
 .fixed-value{height:auto;min-height:47px;line-height:1.45}
+
+/* V8 — entrada livre para qualquer aparelho, em Android e iOS */
+.free-model-hint{color:#d9affc!important;font-size:11px!important;line-height:1.55!important}
+#model,#iphoneModel{border-color:#9560c2!important;background-color:#160c25!important;font-size:14px!important}
+#model::placeholder,#iphoneModel::placeholder{color:#9884ac;opacity:1}

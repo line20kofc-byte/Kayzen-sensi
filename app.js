@@ -38,10 +38,17 @@ let savedSettings=secureStorage.read('kayzen_form_v1',{});
 const escapeHTML=(s)=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 function setMessage(id,msg,error=false){const el=$(id);el.textContent=msg;el.classList.toggle('error',error)}
 function changeScreen(screen){document.querySelectorAll('.screen').forEach(e=>e.classList.toggle('active',e.id===screen));document.querySelectorAll('[data-screen]').forEach(e=>e.classList.toggle('active',e.dataset.screen===screen));if(screen==='favoritos')drawFavorites();if(screen==='pesquisa')updateSearchTarget();window.scrollTo({top:0,behavior:'instant'});if(location.hash!=='#'+screen)history.replaceState(null,'','#'+screen)}
-function choosePlatform(value){platform=value==='ios'?'ios':'android';document.querySelectorAll('[data-platform]').forEach(e=>e.classList.toggle('selected',e.dataset.platform===platform));$('iphoneBox').hidden=platform!=='ios';$('iosPpiBox').hidden=platform!=='ios';$('cyclesBox').hidden=platform!=='ios';$('trackingBox').hidden=platform!=='ios';$('androidDpiBox').hidden=platform==='ios';autoDpiMessage();$('modelBox').hidden=platform==='ios' && $('iphoneModel').value!=='Outro iPhone';$('model').placeholder=platform==='ios'?'Digite o modelo exato do iPhone':'Ex: Redmi Note 13, Galaxy A54...';updatePpi();saveSettings()}
-function updatePpi(){const model=$('iphoneModel').value;const ppi=IOS_PPI[model];$('ppiValue').textContent=ppi?`${ppi} PPI (densidade física, não alterável)`:'PPI ainda não cadastrado — consulte as especificações Apple';$('modelBox').hidden=!(platform==='ios' && model==='Outro iPhone') && platform==='ios';saveSettings()}
+function choosePlatform(value){platform=value==='ios'?'ios':'android';document.querySelectorAll('[data-platform]').forEach(e=>e.classList.toggle('selected',e.dataset.platform===platform));$('iphoneBox').hidden=platform!=='ios';$('iosPpiBox').hidden=platform!=='ios';$('cyclesBox').hidden=platform!=='ios';$('trackingBox').hidden=platform!=='ios';$('androidDpiBox').hidden=platform==='ios';autoDpiMessage();$('modelBox').hidden=platform==='ios';$('model').placeholder='Ex: Redmi Note 13, Galaxy A54, POCO F6...';updatePpi();saveSettings()}
+function updatePpi(){
+ const model=$('iphoneModel').value.trim();
+ const match=Object.keys(IOS_PPI).find(key=>key.toLowerCase()===model.toLowerCase());
+ const ppi=match ? IOS_PPI[match] : null;
+ $('ppiValue').textContent=!model?'Digite qualquer modelo de iPhone':ppi?`${ppi} PPI (densidade física, não alterável)`:'PPI não cadastrado para este modelo — a busca de sensibilidades continua disponível';
+ $('modelBox').hidden=platform==='ios';
+ saveSettings();
+}
 function saveSettings(){const v={platform,model:$('model').value,iphoneModel:$('iphoneModel').value,game:$('game').value,style:$('style').value,speed:$('speed').value,cycles:$('cycles').value,tracking:$('tracking').value};secureStorage.write('kayzen_form_v1',v)}
-function currentModel(){return platform==='ios'?($('iphoneModel').value==='Outro iPhone'?$('model').value.trim():$('iphoneModel').value):$('model').value.trim()}
+function currentModel(){return platform==='ios' ? $('iphoneModel').value.trim() : $('model').value.trim()}
 function getForm(){const model=currentModel();if(model.length<3)throw Error('Selecione ou digite um modelo de celular válido.');const posts=publishedFor(model,platform);return {platform,model,game:$('game').value,style:$('style').value,speed:$('speed').value,androidDpi:platform==='android'?(posts[0]?.dpi ?? 400):null,dpiFromSource:platform==='android'&&posts.length>0,ppi:platform==='ios'?IOS_PPI[model]||null:null,cycles:platform==='ios'?Number($('cycles').value):null,tracking:platform==='ios'?$('tracking').value:null}}
 const clamp=(x,min,max)=>Math.max(min,Math.min(max,Math.round(x)));
 // Cinco faixas experimentais (inclui 720 e teto 960) quando a fonte não cobre os cinco perfis.
@@ -110,7 +117,7 @@ function updateFavCount(){$('favCount').textContent=favorites.length}
 function allKnownProfiles(){const map=new Map([...profiles,...favorites].map(p=>[p.id,p]));return map}
 async function copyProfile(id){const p=allKnownProfiles().get(id);if(!p)return;const txt=profileText(p);try{await navigator.clipboard.writeText(txt);setMessage('formMessage','Configuração copiada!')}catch{const area=document.createElement('textarea');area.value=txt;document.body.appendChild(area);area.select();const ok=document.execCommand('copy');area.remove();setMessage('formMessage',ok?'Configuração copiada.':'Não foi possível copiar; use o navegador em HTTPS.',!ok)}}
 function toggleFavorite(id){const p=allKnownProfiles().get(id);if(!p)return;const old=favorites.findIndex(x=>x.id===id);if(old>=0)favorites.splice(old,1);else favorites.unshift(p);favorites=favorites.slice(0,100);secureStorage.write('kayzen_favorites_v1',favorites);updateFavCount();drawProfiles();drawFavorites()}
-function updateSearchTarget(){const model=currentModel();$('searchTarget').textContent=model?`${platform==='ios'?'iPhone':'Android'} • ${model} • ${$('game').value}`:'Selecione o aparelho na aba Início para fazer a busca.'}
+function updateSearchTarget(){const model=currentModel();$('searchTarget').textContent=model?`${platform==='ios'?'iPhone':'Android'} • ${model} • ${$('game').value}`:'Digite qualquer modelo na aba Início para fazer a busca.'}
 function manualSearchLinks(form){
   const root=$('researchResults');root.replaceChildren();const query=`${form.model} ${form.game} sensi dpi`;const info=document.createElement('div');info.className='notice-card';
   info.textContent='O TikTok não fornece resultados públicos completos para consulta automática neste site sem uma fonte de busca configurada. Abra a pesquisa de vídeos ou consulte as publicações da comunidade já disponíveis nos perfis.';root.append(info);
@@ -165,11 +172,14 @@ function manualSearchLinksAppend(form){const target=$('researchResults');const q
 function showMyths(){$('mythsList').innerHTML=MYTHS.map(([q,t,a],i)=>`<details class="myth" ${i===0?'open':''}><summary><span class="tag">${t}</span><span>${escapeHTML(q)}</span></summary><p>${escapeHTML(a)}</p></details>`).join('')}
 function detect(){const ua=navigator.userAgent||'';if(/iPad|iPhone|iPod/i.test(ua)){choosePlatform('ios');setMessage('formMessage','iOS detectado. Escolha manualmente o modelo exato: o Safari não fornece essa informação com confiança.');return}if(/Android/i.test(ua)){choosePlatform('android');const m=ua.match(/Android\s*[\d.]+;\s*([^;\)]{3,75})(?:[;)])/i);if(m){let cand=m[1].replace(/\s*Build\/.*$/i,'').trim();if(cand.length>=4&&!/^(?:wv|mobile|linux|en-us)$/i.test(cand))$('model').value=cand}setMessage('formMessage','Android detectado. Confira o modelo; o DPI será sugerido automaticamente.');autoDpiMessage();saveSettings();return}setMessage('formMessage','Não foi possível identificar o celular automaticamente. Selecione Android ou iPhone.');}
 function onGenerate(){try{const form=getForm();saveSettings();profiles=generateProfiles(form);sessionKey=form.model;drawProfiles();setMessage('formMessage',`${profiles.filter(p=>p.source).length} perfil(is) publicado(s) e ${profiles.filter(p=>!p.source).length} experimental(is). DPI indicado automaticamente; anote sua menor largura original antes de mudar.`);$('resultsSection').scrollIntoView({behavior:'smooth',block:'start'});searchOnline(true)}catch(e){setMessage('formMessage',e.message,true)}}
-function hydrate(){for(const [name,val] of Object.entries(savedSettings)){if(name==='platform')continue;const el=$(name);if(el&&val!=null)el.value=String(val)}choosePlatform(savedSettings.platform||(/iPhone|iPad|iPod/.test(navigator.userAgent)?'ios':'android'));if(platform==='ios'&&$('iphoneModel').value==='')$('iphoneModel').value='iPhone 13';updatePpi();updateFavCount();showMyths();updateSearchTarget();autoDpiMessage()}
+function hydrate(){for(const [name,val] of Object.entries(savedSettings)){if(name==='platform')continue;const el=$(name);if(el&&val!=null)el.value=String(val)}choosePlatform(savedSettings.platform||(/iPhone|iPad|iPod/.test(navigator.userAgent)?'ios':'android'));updatePpi();updateFavCount();showMyths();updateSearchTarget();autoDpiMessage()}
 for(const button of document.querySelectorAll('[data-screen]'))button.addEventListener('click',()=>changeScreen(button.dataset.screen));
 for(const button of document.querySelectorAll('[data-platform]'))button.addEventListener('click',()=>choosePlatform(button.dataset.platform));
-for(const el of document.querySelectorAll('input,select'))el.addEventListener('change',()=>{saveSettings();updateSearchTarget();autoDpiMessage()});
-$('iphoneModel').addEventListener('change',updatePpi);
+for(const el of document.querySelectorAll('input,select')){
+  const refresh=()=>{saveSettings();updateSearchTarget();autoDpiMessage();if(el.id==='iphoneModel')updatePpi()};
+  el.addEventListener('change',refresh);
+  if(el.tagName==='INPUT')el.addEventListener('input',refresh);
+}
 $('generate').addEventListener('click',onGenerate);$('detect').addEventListener('click',detect);$('searchOnline').addEventListener('click',searchOnline);
 document.addEventListener('click',e=>{const cp=e.target.closest('[data-copy]'),fav=e.target.closest('[data-favorite]');if(cp)copyProfile(cp.dataset.copy);if(fav)toggleFavorite(fav.dataset.favorite)});
 hydrate();const initial=location.hash.replace('#','');if(['inicio','pesquisa','favoritos','mitos'].includes(initial))changeScreen(initial);

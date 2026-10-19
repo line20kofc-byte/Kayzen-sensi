@@ -1,0 +1,24 @@
+KAYZEN SENSITIVITY V8 — QUALQUER CELULAR
+
+CORREÇÃO
+- Android: digite qualquer marca e modelo no campo MODELO DO CELULAR.
+- iPhone: digite qualquer modelo no campo MODELO DO IPHONE.
+- As opções sugeridas não limitam a pesquisa.
+- O modelo digitado é enviado à pesquisa online pelo servidor TinyFish quando a API estiver ativa.
+- Sem fontes suficientes, os DPIs exibidos são alternativas de TESTE, não recomendações comprovadas.
+
+ATUALIZAÇÃO DO SEU SITE EXISTENTE (não crie outro site):
+1. Extraia este ZIP.
+2. Abra seu repositório Kayzen-sensi no GitHub > Code.
+3. Envie os arquivos EXTRAÍDOS com os mesmos caminhos: index.html, app.js, styles.css, sw.js e os demais.
+4. Substitua os arquivos antigos (ou edite os quatro existentes no GitHub) e confirme Commit changes.
+5. Se GitHub já estiver conectado ao projeto Netlify, o commit inicia um novo deploy automaticamente.
+6. Abra o Netlify > Projects > seu projeto > Deploys para conferir Published/Successful.
+7. Recarregue o site com Ctrl+F5 ou use janela anônima. O service worker antigo também será atualizado.
+
+API
+- TINYFISH_API_KEY fica SOMENTE no Netlify em Project configuration > Environment variables, escopo Functions/All scopes.
+- Nunca cole sua chave no GitHub ou envie prints mostrando a chave.
+- Após alterar variável, precisa haver um novo deploy.
+
+ATENÇÃO: a TinyFish pode não identificar números de vídeos do TikTok apenas por trechos indexados.
