@@ -1,0 +1,8 @@
+Kayzen Sensitivity V7 — site Android e iPhone, sem login, com pesquisa TinyFish.
+
+1. Abra COMO_ATIVAR_API.txt para criar a chave SEM CARTÃO.
+2. Publique com repositório GitHub conectado ao Netlify.
+3. Configure TINYFISH_API_KEY no Netlify.
+4. Confira a busca no navegador e os links das fontes.
+
+A API pode encontrar informações incompletas. A parte offline mostra exemplos experimentais, não sensibilidades populares comprovadas.

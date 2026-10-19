@@ -1,0 +1,1 @@
+Leia COMO_ATIVAR_API.txt para configurar a API Tavily gratuita e publicar a função pelo GitHub + Netlify.

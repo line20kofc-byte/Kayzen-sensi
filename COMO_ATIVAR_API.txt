@@ -1,0 +1,26 @@
+KAYZEN SENSITIVITY V7 — SEM CARTÃO (TINYFISH SEARCH)
+
+1. Acesse https://agent.tinyfish.ai e crie uma conta.
+2. Encontre suas API Keys no painel e gere uma chave.
+   A TinyFish informa que SEARCH e FETCH são gratuitos sem cartão, dentro dos limites publicados.
+   NÃO habilite/contrate AGENT ou BROWSER pagos para esta integração.
+3. No Netlify: seu projeto > Project configuration > Environment variables > Add variable.
+   NAME: TINYFISH_API_KEY
+   VALUE: [sua chave secreta]
+   Escopo: Functions ou All.
+4. Publique TODOS os arquivos desta pasta com GitHub conectado ao Netlify.
+   Inclua netlify.toml e netlify/functions/search.mjs. Netlify Drop somente estático NÃO publica a função.
+5. Teste o endereço abaixo (troque SEU-SITE):
+   https://SEU-SITE.netlify.app/.netlify/functions/search?model=Redmi%2013C&game=Free%20Fire&platform=android
+   Esperado: JSON com o campo sources.
+   503: a variável TINYFISH_API_KEY não foi configurada.
+   404: sua Netlify Function não foi publicada.
+6. Abra o site no navegador: selecione o celular e toque em PESQUISAR ou GERAR.
+
+OBSERVAÇÕES:
+- A busca TinyFish declara ser gratuita sem cartão (30 requisições/min, 500/h, sujeito a mudanças).
+- Não há garantia de encontrar DPI específico ou números de dentro dos vídeos TikTok.
+- Quando não houver números publicados, o site mostra PERFIS EXPERIMENTAIS; não inventa fontes.
+- As credenciais jamais devem ser copiadas no index.html/app.js nem enviadas aqui.
+- Netlify também tem cotas de uso no plano gratuito.
+- iPhone mostra PPI físico, não 'Menor largura' Android.
